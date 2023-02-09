@@ -1,0 +1,9 @@
+site_name: My Docs
+theme:
+  name: readthedocs
+  locale: fr
+  highlihtjs: true
+  hljs_languages:
+        - yaml
+        - python
+        - shell

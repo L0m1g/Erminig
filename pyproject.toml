@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "erminig"
+version = "0.1.0"
+description = ""
+authors = ["Lomig <guillaume.lame@protonmail.com>"]
+readme = "README.md"
+packages = [{include = "erminig", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+mkdocs = "^1.4.2"
+click = "^8.1.3"
+black = "^23.1.0"
+pyyaml = "^6.0"
+pre-commit = "^3.0.4"
+
+[tool.poetry.scripts]
+govel = "erminig.govel:cli"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
