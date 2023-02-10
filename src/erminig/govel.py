@@ -12,9 +12,6 @@ Options:
   -v --verbose
 """
 
-""" 
-TODO : Add documentation
-"""
 import errno
 import os
 import pwd
@@ -30,6 +27,54 @@ from .lib import users
 
 
 class Govel:
+    """
+    Class to create and use rekipe files, that contain build instructions for the packages.
+
+    There are 4 Level of construction :
+    Dev : to create an erminig distribution from a host Linux Distribution
+    Global : To maintain a distribution
+    Local : to create and maintain independant packages that will be stored in /usr/local
+    User : for user-only usage in ~/.local/bin
+    ...
+
+    Attributes
+    ----------
+    arguments : list
+        list that contain arguments.
+        returned by docopt module
+    temporyFile : str
+        Log file to use until final log file is created
+
+    Methods
+    -------
+    def parse_arguments(self):
+        Select good datas and parameters to work with
+
+    def initialize(self):
+        Create the pak user if necessary
+        Create basic folders
+        Finalize temporary files
+
+    def init_pak_user(self):
+        Create pak user and group
+
+    def init_folders(self):
+        Create folders and check permissions
+
+    def check_perms_folder(self, path, uid, gid, r_uid, r_gid):
+        Give new permissions if necessary
+        A folder created by root can be finally be owned by the pak user
+
+    def create_pak_user(self):
+        Create the pak user with a basic password
+
+    def create_pak_group(self):
+        Create the pak group
+
+    def migrate_temporyFile(self):
+        Copy the temporary logfile in its final destination
+    """
+
     Dev = [
         "pak",
         "/home/pak/erminig",
@@ -51,6 +96,17 @@ class Govel:
     ]
 
     def __init__(self, arguments, temporyFile):
+        """
+        Get and check the attributes for the Govel class
+
+        Parameters
+        ----------
+        arguments : list
+            list that contain arguments.
+            returned by docopt module
+        temporyFile : str
+            Log file to use until final log file is created
+        """
         self.arguments = arguments
         self.temporyFile = temporyFile
 
@@ -63,6 +119,9 @@ class Govel:
         self.parse_arguments()
 
     def parse_arguments(self):
+        """
+        Select good datas and parameters to work with
+        """
         if self.arguments["init"]:
             if self.arguments["--dev"]:
                 if os.getuid() != 0:
@@ -89,6 +148,10 @@ class Govel:
 
     def initialize(self):
         """
+        Create the pak user if necessary
+        Create basic folders
+        Finalize temporary files
+
         TODO : Initialize configuration files
         """
         if os.getuid() == 0:
@@ -97,10 +160,16 @@ class Govel:
         self.migrate_temporyFile()
 
     def init_pak_user(self):
+        """
+        Create pak user and group
+        """
         self.create_pak_group()
         self.create_pak_user()
 
     def init_folders(self):
+        """
+        Create folders and check permissions
+        """
         for folder in (
             os.path.dirname(self.datas[1]),
             os.path.dirname(self.datas[2]),
@@ -121,12 +190,31 @@ class Govel:
                 )
 
     def check_perms_folder(self, path, uid, gid, r_uid, r_gid):
+        """
+        Give new permissions if necessary
+        A folder created by root can be finally be owned by the pak user
+
+        Parameters
+        ----------
+        path : str
+            folder to work on
+        uid : int
+            final uid
+        gid : int
+            final gid
+        r_uid : int
+            actual uid
+        r_gid : int
+            actual gid
+        """
         if uid != r_uid or gid != r_gid:
-            self.log.debug("Changement du propriétaire de " + path)
+            self.log.debug("Change " + path + " owner")
             os.chown(path, uid, gid)
 
     def create_pak_user(self):
         """
+        Create the pak user with a basic password
+
         TODO : Add message to change password for security purpose
         """
         try:
@@ -140,6 +228,9 @@ class Govel:
             self.log.info(e.stderr.decode("utf-8"))
 
     def create_pak_group(self):
+        """
+        Create the pak group
+        """
         try:
             action = subprocess.run(
                 ["groupadd", "-r", "pak"],
@@ -151,6 +242,9 @@ class Govel:
             self.log.info(e.stderr.decode("utf-8"))
 
     def migrate_temporyFile(self):
+        """
+        Copy the temporary logfile in its final destination
+        """
         shutil.copy(self.temporyFile, self.datas[2])
         if self.arguments["--verbose"]:
             self.log = renablou.Renablou(self.datas[2], "debug")
@@ -160,6 +254,10 @@ class Govel:
 
 
 def cli():
+    """
+    Function called by the govel executable
+    Instance the Govel Class with arguments and temporary file
+    """
     temporyFile = tempfile.mkstemp()[1]
     arguments = docopt(__doc__, version="0.1.0")
     govel = Govel(arguments, temporyFile)
