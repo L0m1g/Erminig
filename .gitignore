@@ -1,7 +1,8 @@
 bin/
 dist/
 include/
-lib/
+/lib/
 lib64
 src/erminig/__pycache__/
+src/erminig/lib/__pycache__/
 tests/__pycache__/
