@@ -11,6 +11,10 @@ Options:
   --version            show version and exit
   -v --verbose
 """
+
+""" 
+TODO : Add documentation
+"""
 import errno
 import os
 import pwd
@@ -79,13 +83,14 @@ class Govel:
                 self.datas = self.User
             else:
                 if os.getuid() != 0:
-                    self.log.info(
-                        "Je suppose que vous voulez faire un dépôt utilisateur"
-                    )
+                    self.log.info("Je suppose que vous voulez faire un dépôt utilisateur")
                     self.datas = self.User
             self.initialize()
 
     def initialize(self):
+        """
+        TODO : Initialize configuration files
+        """
         if os.getuid() == 0:
             self.init_pak_user()
         self.init_folders()
@@ -121,20 +126,12 @@ class Govel:
             os.chown(path, uid, gid)
 
     def create_pak_user(self):
+        """
+        TODO : Add message to change password for security purpose
+        """
         try:
             action = subprocess.run(
-                [
-                    "useradd",
-                    "-k",
-                    "/dev/null",
-                    "-m",
-                    "-r",
-                    "-g",
-                    "pak",
-                    "-p",
-                    "pak",
-                    "pak",
-                ],
+                ["useradd", "-k", "/dev/null", "-m", "-r", "-g", "pak", "-p", "pak", "pak"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )

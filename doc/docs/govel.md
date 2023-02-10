@@ -1,5 +1,7 @@
 # Govel
 
+[//]: <> (TODO Parler de la création de l'utilisateur pak)
+
 Govel est la forge d'Erminig. C'est ici que vous allez créer, mettre à jour les fichiers de build des différents paquets de la distribution.
 
 Vous avez 4 cas de figures pris en compte :
