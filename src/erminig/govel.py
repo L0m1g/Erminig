@@ -267,12 +267,21 @@ class Govel:
         """
         Copy the temporary logfile in its final destination
         """
-        shutil.copy(self.temporyFile, self.datas[2])
-        if self.arguments["--verbose"]:
-            self.log = renablou.Renablou(self.datas[2], "debug")
+        if os.path.exists(self.datas[2]):
+            govel = open(self.datas[2], "a+")
+            tmp = open(self.temporyFile, "r")
+            govel.write(tmp.read())
+            govel.seek(0)
+            tmp.seek(0)
+            govel.close()
+            tmp.close()
         else:
-            self.log = renablou.Renablou(self.datas[2], "info")
-        self.log.debug("Tempory File :" + self.datas[2])
+            shutil.copy(self.temporyFile, self.datas[2])
+            if self.arguments["--verbose"]:
+                self.log = renablou.Renablou(self.datas[2], "debug")
+            else:
+                self.log = renablou.Renablou(self.datas[2], "info")
+            self.log.debug("Tempory File :" + self.datas[2])
 
 
 def cli():
