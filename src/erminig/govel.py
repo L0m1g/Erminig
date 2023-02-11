@@ -12,6 +12,16 @@ Options:
   -v --verbose
 """
 
+"""
+TODO : add govel add
+TODO : add govel delete
+TODO : add govel list
+TODO : add govel info
+TODO : add govel toolchain
+TODO : add govel update
+TODO : add govel fix
+"""
+
 import errno
 import os
 import pwd
@@ -160,7 +170,9 @@ class Govel:
         Create basic folders
         Finalize temporary files
 
+        TODO : If final temporary file exists, don't overwrite it
         TODO : Initialize configuration files
+        TODO : If --path, put the value in config file
         """
         if os.getuid() == 0:
             self.init_pak_user()
@@ -224,6 +236,7 @@ class Govel:
         Create the pak user with a basic password
 
         TODO : Add message to change password for security purpose
+        TODO : Add basic bashrc file
         """
         try:
             action = subprocess.run(
