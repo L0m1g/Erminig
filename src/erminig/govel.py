@@ -3,7 +3,7 @@
 Forge of Erminig
 
 Usage:
-  govel init [--dev | --root | --user] [-v]
+  govel init [--dev | --root | --user] [-v] [--path PATH]
   govel --version
 
 Options:
@@ -149,6 +149,8 @@ class Govel:
                     self.log.info("Je suppose que vous voulez faire un dépôt utilisateur")
                     self.datas = self.User
 
+            if self.arguments["--path"]:
+                self.datas[1] = self.arguments["PATH"]
             self.log.debug(self.datas)
             self.initialize()
 
@@ -177,7 +179,7 @@ class Govel:
         Create folders and check permissions
         """
         for folder in (
-            os.path.dirname(self.datas[1]),
+            self.datas[1],
             os.path.dirname(self.datas[2]),
             os.path.dirname(self.datas[3]),
         ):
@@ -188,11 +190,11 @@ class Govel:
                     self.log.info(folder + " Already exists")
             finally:
                 self.check_perms_folder(
-                    os.path.dirname(folder),
+                    folder,
                     pwd.getpwnam(self.datas[0])[2],
                     pwd.getpwnam(self.datas[0])[3],
-                    os.stat(os.path.dirname(folder)).st_uid,
-                    os.stat(os.path.dirname(folder)).st_gid,
+                    os.stat(folder).st_uid,
+                    os.stat(folder).st_gid,
                 )
 
     def check_perms_folder(self, path, uid, gid, r_uid, r_gid):
