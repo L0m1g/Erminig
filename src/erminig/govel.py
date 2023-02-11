@@ -235,7 +235,6 @@ class Govel:
         """
         Create the pak user with a basic password
 
-        TODO : Add message to change password for security purpose
         TODO : Add basic bashrc file
         """
         try:
@@ -247,6 +246,8 @@ class Govel:
             action.check_returncode()
         except subprocess.CalledProcessError as e:
             self.log.info(e.stderr.decode("utf-8"))
+        else:
+            self.log.warn("User pak is created with pak password. Please change it for safety reasons")
 
     def create_pak_group(self):
         """
