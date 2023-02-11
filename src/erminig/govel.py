@@ -122,21 +122,25 @@ class Govel:
         """
         Select good datas and parameters to work with
         """
+        self.log.debug(self.arguments)
         if self.arguments["init"]:
             if self.arguments["--dev"]:
                 if os.getuid() != 0:
+                    self.log.error("Must be root")
                     sys.exit()
                 self.log.debug("Initialize dev govel")
                 self.datas = self.Dev
 
             elif self.arguments["--root"]:
                 if os.getuid() != 0:
+                    self.log.error("Must be root")
                     sys.exit()
                 self.log.debug("Initialize root govel")
                 self.datas = self.Local
 
             elif self.arguments["--user"]:
                 if os.getuid() == 0:
+                    self.log.error("Can't be root")
                     sys.exit()
                 self.log.debug("Initialize user govel")
                 self.datas = self.User
@@ -144,6 +148,8 @@ class Govel:
                 if os.getuid() != 0:
                     self.log.info("Je suppose que vous voulez faire un dépôt utilisateur")
                     self.datas = self.User
+
+            self.log.debug(self.datas)
             self.initialize()
 
     def initialize(self):
