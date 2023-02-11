@@ -170,7 +170,6 @@ class Govel:
         Create basic folders
         Finalize temporary files
 
-        TODO : If final temporary file exists, don't overwrite it
         TODO : Initialize configuration files
         TODO : If --path, put the value in config file
         """
