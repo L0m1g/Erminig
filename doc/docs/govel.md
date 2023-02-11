@@ -58,7 +58,7 @@ Govel
 Forge of Erminig
 
 Usage:
-govel init [--dev | --root | --user] [-v]
+govel init [--dev | --root | --user] [-v] [--path PATH]
 govel --version
 
 Options:
@@ -79,3 +79,14 @@ govel init --user
 ```
 Il n'y a pas besoin de créer les repertoires pour le maintien de la distribution, ils existent déjà
 
+### Choix du répertoire de travail
+
+Bien que des répertoire soient définis par défaut, vous pouvez également décider de ne pas utiliser ces emplacements et en choiser d'autres.
+Dans ce cas il suffit d'utiliser l'option `--path`
+
+```
+govel init --user --path /home/Documents/erminig
+```
+
+Ce répertoire sera défini dans le fichier de configuration. Ce changement n'affecte que l'espace de travail et aucunement les fichiers de logs et de configuration.
+Ce répertoire de travail doit etre défini de façon absolue.
