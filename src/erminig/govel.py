@@ -34,6 +34,7 @@ from docopt import docopt
 
 from .lib import renablou
 from .lib import users
+from .lib import config
 
 
 class Govel:
@@ -169,12 +170,10 @@ class Govel:
         Create the pak user if necessary
         Create basic folders
         Finalize temporary files
-
-        TODO : Initialize configuration files
-        TODO : If --path, put the value in config file
         """
         if os.getuid() == 0:
             self.init_pak_user()
+        self.check_config_file()
         self.init_folders()
         self.migrate_temporyFile()
 
@@ -207,6 +206,18 @@ class Govel:
                     os.stat(folder).st_uid,
                     os.stat(folder).st_gid,
                 )
+
+    def check_config_file(self):
+        """
+        Get config file values
+        """
+        try:
+            self.config = config.Config(self.datas[3])
+        except:
+            self.log.warn("Error while opening config file")
+
+        if self.arguments["--path"]:
+            self.config.set("govel", "path", self.arguments["PATH"])
 
     def check_perms_folder(self, path, uid, gid, r_uid, r_gid):
         """
