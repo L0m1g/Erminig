@@ -23,6 +23,7 @@ class Config:
     def __init__(self, path):
         self.path = path
         self.config = configparser.ConfigParser()
+        self.config.read(self.path)
 
     def get(self, section, key):
         """
@@ -35,7 +36,7 @@ class Config:
         key : str
             Key to which to retrieve a value
         """
-        pass
+        return self.config[section][key]
 
     def set(self, section, key, value) -> None:
         """
@@ -49,7 +50,6 @@ class Config:
         value : str
             Value
         """
-        self.config.read(self.path)
         if not self.config.has_section(section):
             self.config.add_section(section)
         self.config[section][key] = value
