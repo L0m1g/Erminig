@@ -88,6 +88,12 @@ class Govel:
 
     def migrate_temporyFile(self):
         Copy the temporary logfile in its final destination
+
+    def create_version_folders(self):
+        Create folders for future development
+
+    def give_random_name(self) -> str:
+        Give random name if definitive one is not choosed
     """
 
     Dev = [
