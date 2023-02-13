@@ -4,7 +4,7 @@ Forge of Erminig
 
 Usage:
   govel init [--dev | --root | --user] [-v] [--path PATH]
-  govel new [--name NAME] [-v]
+  govel new (--name NAME) [-v]
   govel --version
 
 Options:
@@ -174,7 +174,9 @@ class Govel:
             self.log.debug(self.datas)
             self.initialize()
         elif self.arguments["new"]:
+            self.check_root()
             self.datas = self.Dev
+            self.config = config.Config(self.datas[3])
             self.new_version()
 
     def initialize(self):
@@ -224,6 +226,7 @@ class Govel:
     def new_version(self):
         """
         Dispatch all the tasks to create a new version
+        A new version can only be created with pak in its home
         """
         self.check_user_pak()
         self.create_version_folders()
@@ -337,23 +340,26 @@ class Govel:
         self.log.debug("name is " + self.name)
 
         dirname = os.path.join(self.datas[1], self.name)
-        folders = [
-            os.path.join(dirname, "toolchain"),
-            os.path.join(dirname, "core"),
-            os.path.join(dirname, "xorg"),
-            os.path.join(dirname, "cli"),
-            os.path.join(dirname, "gui"),
-        ]
-        for folder in folders:
-            if not os.path.exists(folder):
-                try:
-                    os.makedirs(folder)
-                except OSError as e:
-                    if e.errno == errno.EACCES:
-                        self.log.warn("Need to be root")
-                        exit(1)
-                else:
-                    self.log.debug(folder + " created")
+        if not os.path.exists(dirname):
+            folders = [
+                os.path.join(dirname, "toolchain"),
+                os.path.join(dirname, "core"),
+                os.path.join(dirname, "xorg"),
+                os.path.join(dirname, "cli"),
+                os.path.join(dirname, "gui"),
+            ]
+            for folder in folders:
+                if not os.path.exists(folder):
+                    try:
+                        os.makedirs(folder)
+                    except OSError as e:
+                        if e.errno == errno.EACCES:
+                            self.log.warn("Need to be root")
+                            exit(1)
+                    else:
+                        self.log.debug(folder + " created")
+        else:
+            self.log.error("Version " + self.name + " already exists")
 
     def give_random_name(self) -> str:
         """
