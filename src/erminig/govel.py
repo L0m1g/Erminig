@@ -21,6 +21,8 @@ TODO : add govel info
 TODO : add govel toolchain
 TODO : add govel update
 TODO : add govel fix
+TODO : add govel archive
+TODO : add govel rename
 """
 
 import errno
@@ -131,6 +133,21 @@ class Govel:
 
         self.parse_arguments()
 
+    def check_root(self):
+        """
+        Check if user is root
+        """
+        if os.getuid() != 0:
+            self.log.error("Must be root")
+            sys.exit(1)
+
+    def init_user(self, datas, debug):
+        """
+        get correct configuration values
+        """
+        self.log.debug(debug)
+        self.datas = datas
+
     def parse_arguments(self):
         """
         Select good datas and parameters to work with
@@ -138,29 +155,19 @@ class Govel:
         self.log.debug(self.arguments)
         if self.arguments["init"]:
             if self.arguments["--dev"]:
-                if os.getuid() != 0:
-                    self.log.error("Must be root")
-                    sys.exit()
-                self.log.debug("Initialize dev govel")
-                self.datas = self.Dev
+                self.check_root()
+                self.init_user(self.Dev, "Initialize dev govel")
 
             elif self.arguments["--root"]:
-                if os.getuid() != 0:
-                    self.log.error("Must be root")
-                    sys.exit()
-                self.log.debug("Initialize root govel")
-                self.datas = self.Local
+                self.check_root()
+                self.init_user(self.Global, "Initialize root govel")
 
             elif self.arguments["--user"]:
-                if os.getuid() == 0:
-                    self.log.error("Can't be root")
-                    sys.exit()
-                self.log.debug("Initialize user govel")
-                self.datas = self.User
+                self.check_root()
+                self.init_user(self.Local, "Initialize user govel")
             else:
                 if os.getuid() != 0:
-                    self.log.info("Je suppose que vous voulez faire un dépôt utilisateur")
-                    self.datas = self.User
+                    self.init_user(self.User, "Je suppose que vous voulez faire un dépôt utilisateur")
 
             if self.arguments["--path"]:
                 self.datas[1] = self.arguments["PATH"]
