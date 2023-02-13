@@ -90,3 +90,14 @@ govel init --user --path /home/Documents/erminig
 
 Ce répertoire sera défini dans le fichier de configuration. Ce changement n'affecte que l'espace de travail et aucunement les fichiers de logs et de configuration.
 Ce répertoire de travail doit etre défini de façon absolue.
+
+### Création de l'utilisateur pak
+
+Il est créé automatiquement avec un dossier `/home/pak` dédié sauf si vous n'utiliser que pour les besoins de l'utilisateur courant. Cet utilisateur a des paramètres dédiés au niveau de son environnement qui garantissent une homogénéité au niveau des compilations.
+
+## Création d'une nouvelle distribution
+
+```
+sudo govel init --dev
+sudo govel new --name mojenn
+```

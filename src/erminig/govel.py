@@ -4,6 +4,7 @@ Forge of Erminig
 
 Usage:
   govel init [--dev | --root | --user] [-v] [--path PATH]
+  govel new [--name NAME] [-v]
   govel --version
 
 Options:
@@ -25,6 +26,7 @@ TODO : add govel fix
 import errno
 import os
 import pwd
+import random
 import shutil
 import subprocess
 import sys
@@ -164,12 +166,17 @@ class Govel:
                 self.datas[1] = self.arguments["PATH"]
             self.log.debug(self.datas)
             self.initialize()
+        elif self.arguments["new"]:
+            self.datas = self.Dev
+            self.new_version()
 
     def initialize(self):
         """
         Create the pak user if necessary
         Create basic folders
         Finalize temporary files
+
+        TODO : récupérer la version du système pour l'inclure dans le path
         """
         if os.getuid() == 0:
             self.init_pak_user()
@@ -207,6 +214,13 @@ class Govel:
                     os.stat(folder).st_gid,
                 )
 
+    def new_version(self):
+        """
+        Dispatch all the tasks to create a new version
+        """
+        self.check_user_pak()
+        self.create_version_folders()
+
     def check_config_file(self):
         """
         Get config file values
@@ -240,6 +254,16 @@ class Govel:
         if uid != r_uid or gid != r_gid:
             self.log.debug("Change " + path + " owner")
             os.chown(path, uid, gid)
+
+    def check_user_pak(self):
+        """
+        Check if pak user is set on the system
+        """
+        try:
+            pwd.getpwnam("pak")
+        except KeyError:
+            self.log.error("pak user does not exists. Please run govel init before anything else")
+            exit(1)
 
     def create_pak_user(self):
         """
@@ -292,6 +316,43 @@ class Govel:
             else:
                 self.log = renablou.Renablou(self.datas[2], "info")
             self.log.debug("Tempory File :" + self.datas[2])
+
+    def create_version_folders(self):
+        """
+        Create folders for future development
+        """
+        if not self.arguments["--name"]:
+            self.name = self.give_random_name()
+        else:
+            self.name = self.arguments["NAME"]
+        self.log.debug("name is " + self.name)
+
+        dirname = os.path.join(self.datas[1], self.name)
+        folders = [
+            os.path.join(dirname, "toolchain"),
+            os.path.join(dirname, "core"),
+            os.path.join(dirname, "xorg"),
+            os.path.join(dirname, "cli"),
+            os.path.join(dirname, "gui"),
+        ]
+        for folder in folders:
+            if not os.path.exists(folder):
+                try:
+                    os.makedirs(folder)
+                except OSError as e:
+                    if e.errno == errno.EACCES:
+                        self.log.warn("Need to be root")
+                        exit(1)
+                else:
+                    self.log.debug(folder + " created")
+
+    def give_random_name(self) -> str:
+        """
+        Give random name if definitive one is not choosed
+        """
+        choices = ["menhir", "dolmen", "tumulus"]
+        name = random.choice(choices)
+        return name
 
 
 def cli():
