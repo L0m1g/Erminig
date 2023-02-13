@@ -239,6 +239,8 @@ class Govel:
 
         if self.arguments["--path"]:
             self.config.set("govel", "path", self.arguments["PATH"])
+        else:
+            self.config.set("govel", "path", self.datas[1])
 
     def check_perms_folder(self, path, uid, gid, r_uid, r_gid):
         """
