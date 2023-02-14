@@ -4,7 +4,6 @@ Forge of Erminig
 
 Usage:
   govel init [--dev | --root | --user] [-v] [--path PATH]
-  govel add 
   govel new (--name NAME) [-v]
   govel --version
 
@@ -254,8 +253,9 @@ class Govel:
         """
         self.check_user_pak()
         self.create_version_folders()
+        self.check_config_file("versions", self.arguments["NAME"], os.path.join(self.datas[1], self.arguments["NAME"]))
 
-    def check_config_file(self):
+    def check_config_file(self, section=False, key=False, value=False):
         """
         Get config file values
         """
@@ -268,6 +268,9 @@ class Govel:
             self.config.set("govel", "path", self.arguments["PATH"])
         else:
             self.config.set("govel", "path", self.datas[1])
+
+        if key:
+            self.config.set(section, key, value)
 
     def check_perms_folder(self, path, uid, gid, r_uid, r_gid):
         """
@@ -356,7 +359,6 @@ class Govel:
     def create_version_folders(self):
         """
         Create folders for future development
-        TODO : merge with init_folder function
         """
         if not self.arguments["--name"]:
             self.name = self.give_random_name()
