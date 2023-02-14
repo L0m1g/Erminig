@@ -211,16 +211,33 @@ class Govel:
         """
         Create folders and check permissions
         """
-        for folder in (
+        folders = [
             self.datas[1],
             os.path.dirname(self.datas[2]),
             os.path.dirname(self.datas[3]),
-        ):
+        ]
+        self.create_pak_folders(folders)
+
+    def create_pak_folders(self, folders):
+        """
+        Create folders and give them permissions for pak user
+
+        Parameter
+        ---------
+        folder : list
+            Folders to create
+        """
+        for folder in folders:
             try:
                 os.makedirs(folder)
             except OSError as e:
                 if e.errno == errno.EEXIST:
                     self.log.info(folder + " Already exists")
+                if e.errno == errno.EACCES:
+                    self.log.warn("Need to be root")
+                    exit(1)
+            else:
+                self.log.debug(folder + " created")
             finally:
                 self.check_perms_folder(
                     folder,
@@ -305,7 +322,6 @@ class Govel:
     def create_pak_group(self):
         """
         Create the pak group
-        TODO : merge with create_pak_user function
         """
         try:
             action = subprocess.run(
@@ -358,26 +374,7 @@ class Govel:
                 os.path.join(dirname, "cli"),
                 os.path.join(dirname, "gui"),
             ]
-            for folder in folders:
-                if not os.path.exists(folder):
-                    try:
-                        os.makedirs(folder)
-                    except OSError as e:
-                        if e.errno == errno.EACCES:
-                            self.log.warn("Need to be root")
-                            exit(1)
-                    else:
-                        self.log.debug(folder + " created")
-                    finally:
-                        self.check_perms_folder(
-                            folder,
-                            pwd.getpwnam(self.datas[0])[2],
-                            pwd.getpwnam(self.datas[0])[3],
-                            os.stat(folder).st_uid,
-                            os.stat(folder).st_gid,
-                        )
-        else:
-            self.log.error("Version " + self.name + " already exists")
+            self.create_pak_folders(folders)
 
     def give_random_name(self) -> str:
         """
