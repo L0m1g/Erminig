@@ -305,6 +305,7 @@ class Govel:
     def create_pak_group(self):
         """
         Create the pak group
+        TODO : merge with create_pak_user function
         """
         try:
             action = subprocess.run(
@@ -339,6 +340,7 @@ class Govel:
     def create_version_folders(self):
         """
         Create folders for future development
+        TODO : merge with init_folder function
         """
         if not self.arguments["--name"]:
             self.name = self.give_random_name()
@@ -380,6 +382,7 @@ class Govel:
     def give_random_name(self) -> str:
         """
         Give random name if definitive one is not choosed
+        TODO: Put 7 better random names
         """
         choices = ["menhir", "dolmen", "tumulus"]
         name = random.choice(choices)
