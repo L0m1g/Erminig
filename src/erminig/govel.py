@@ -4,6 +4,7 @@ Forge of Erminig
 
 Usage:
   govel init [--dev | --root | --user] [-v] [--path PATH]
+  govel add 
   govel new (--name NAME) [-v]
   govel --version
 
@@ -348,6 +349,7 @@ class Govel:
         dirname = os.path.join(self.datas[1], self.name)
         if not os.path.exists(dirname):
             folders = [
+                dirname,
                 os.path.join(dirname, "toolchain"),
                 os.path.join(dirname, "core"),
                 os.path.join(dirname, "xorg"),
@@ -364,6 +366,14 @@ class Govel:
                             exit(1)
                     else:
                         self.log.debug(folder + " created")
+                    finally:
+                        self.check_perms_folder(
+                            folder,
+                            pwd.getpwnam(self.datas[0])[2],
+                            pwd.getpwnam(self.datas[0])[3],
+                            os.stat(folder).st_uid,
+                            os.stat(folder).st_gid,
+                        )
         else:
             self.log.error("Version " + self.name + " already exists")
 
