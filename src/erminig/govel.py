@@ -187,13 +187,12 @@ class Govel:
         else:
             return self.env[key]
 
-    def init_environment(self, env, debug):
+    def init_environment(self, env, debug=None):
         """
         get correct configuration values
         """
         self.log.debug(debug)
         self.environ("check", env[0])
-        print(self.environ("check"))
         self.environ("user", env[1])
         self.environ("home", env[2])
         self.environ("log", env[3])
@@ -222,8 +221,8 @@ class Govel:
             self.log.debug(self.env)
             self.initialize()
         elif self.arguments["new"]:
-            self.check_root()
-            self.env = self.Dev
+            self.check_user(self.Dev[0])
+            self.init_environment(self.Dev)
             self.config = config.Config(self.environ("conf"))
             self.new_version()
 
@@ -293,7 +292,6 @@ class Govel:
         Dispatch all the tasks to create a new version
         A new version can only be created with pak in its home
         """
-        self.check_user_pak()
         self.create_version_folders()
         self.check_config_file(
             "versions", self.arguments["NAME"], os.path.join(self.environ("home"), self.arguments["NAME"])
@@ -410,7 +408,7 @@ class Govel:
             self.name = self.arguments["NAME"]
         self.log.debug("name is " + self.name)
 
-        dirname = os.path.join(self.environ("user"), self.name)
+        dirname = os.path.join(self.environ("home"), self.name)
         if not os.path.exists(dirname):
             folders = [
                 dirname,
