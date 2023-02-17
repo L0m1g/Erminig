@@ -218,7 +218,7 @@ class Govel:
                 self.check_user(self.User[0])
                 self.init_environment(self.User, "Initialize user govel")
             if self.arguments["--path"]:
-                self.env[2] = self.arguments["PATH"]
+                self.environ("home", self.arguments["PATH"])
             self.log.debug(self.env)
             self.initialize()
         elif self.arguments["new"]:
