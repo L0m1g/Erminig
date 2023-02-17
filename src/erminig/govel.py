@@ -3,7 +3,7 @@
 Forge of Erminig
 
 Usage:
-  govel init [--dev | --root | --user] [-v] [--path PATH]
+  govel init (--dev | --local | --global | --user) [-v] [--path PATH]
   govel new (--name NAME) [-v]
   govel --version
 
@@ -96,20 +96,24 @@ class Govel:
         Give random name if definitive one is not choosed
     """
 
+    env = {}
     Dev = [
+        "pak",
         "pak",
         "/home/pak/erminig",
         "/home/pak/.local/share/govel.log",
         "/home/pak/.config/erminig.conf",
     ]
-    Global = ["pak", "/var/lib/erminig", "/var/log/govel.log", "/etc/erminig.conf"]
+    Global = ["root", "pak", "/var/lib/erminig", "/var/log/govel.log", "/etc/erminig.conf"]
     Local = [
+        "root",
         "pak",
         "/usr/local/lib/erminig",
         "/usr/local/share/erminig/govel.log",
         "/usr/local/share/erminig/erminig.conf",
     ]
     User = [
+        os.environ["USER"],
         os.environ["USER"],
         os.path.join(os.path.expanduser("~"), ".local/lib/erminig"),
         os.path.join(os.path.expanduser("~"), ".local/share/erminig/govel.log"),
@@ -139,20 +143,39 @@ class Govel:
 
         self.parse_arguments()
 
-    def check_root(self):
+    def check_user(self, user):
         """
-        Check if user is root
+        Check if script is launch with a specific user
         """
-        if os.getuid() != 0:
-            self.log.error("Must be root")
-            sys.exit(1)
+        if user == "root":
+            if os.getuid() != 0:
+                self.log.error("Must be root")
+                sys.exit(1)
+        elif user == "pak":
+            if os.getuid() != pwd.getpwnam("pak")[2]:
+                self.log.error("Must be pak")
+                sys.exit(1)
 
-    def init_user(self, datas, debug):
+    def environ(self, key, value=None):
+        """
+        Getter ant Setter for class environment values
+        """
+        if value:
+            self.env[key] = value
+        else:
+            return self.env[key]
+
+    def init_environment(self, env, debug):
         """
         get correct configuration values
         """
         self.log.debug(debug)
-        self.datas = datas
+        self.environ("check", env[0])
+        print(self.environ("check"))
+        self.environ("user", env[1])
+        self.environ("home", env[2])
+        self.environ("log", env[3])
+        self.environ("conf", env[4])
 
     def parse_arguments(self):
         """
@@ -161,28 +184,25 @@ class Govel:
         self.log.debug(self.arguments)
         if self.arguments["init"]:
             if self.arguments["--dev"]:
-                self.check_root()
-                self.init_user(self.Dev, "Initialize dev govel")
-
-            elif self.arguments["--root"]:
-                self.check_root()
-                self.init_user(self.Global, "Initialize root govel")
-
+                self.check_user(self.Dev[0])
+                self.init_environment(self.Dev, "Initialize dev govel")
+            elif self.arguments["--global"]:
+                self.check_user(self.Global[0])
+                self.init_environment(self.Global, "Initialize global govel")
+            elif self.arguments["--local"]:
+                self.check_user(self.Local[0])
+                self.init_environment(self.Local, "Initialize local govel")
             elif self.arguments["--user"]:
-                self.check_root()
-                self.init_user(self.Local, "Initialize user govel")
-            else:
-                if os.getuid() != 0:
-                    self.init_user(self.User, "Je suppose que vous voulez faire un dépôt utilisateur")
-
+                self.check_user(self.User[0])
+                self.init_environment(self.User, "Initialize user govel")
             if self.arguments["--path"]:
-                self.datas[1] = self.arguments["PATH"]
-            self.log.debug(self.datas)
+                self.env[2] = self.arguments["PATH"]
+            self.log.debug(self.env)
             self.initialize()
         elif self.arguments["new"]:
             self.check_root()
-            self.datas = self.Dev
-            self.config = config.Config(self.datas[3])
+            self.env = self.Dev
+            self.config = config.Config(self.environ("conf"))
             self.new_version()
 
     def initialize(self):
@@ -211,9 +231,9 @@ class Govel:
         Create folders and check permissions
         """
         folders = [
-            self.datas[1],
-            os.path.dirname(self.datas[2]),
-            os.path.dirname(self.datas[3]),
+            self.environ("home"),
+            os.path.dirname(self.environ("log")),
+            os.path.dirname(self.environ("conf")),
         ]
         self.create_pak_folders(folders)
 
@@ -240,8 +260,8 @@ class Govel:
             finally:
                 self.check_perms_folder(
                     folder,
-                    pwd.getpwnam(self.datas[0])[2],
-                    pwd.getpwnam(self.datas[0])[3],
+                    pwd.getpwnam(self.environ("user"))[2],
+                    pwd.getpwnam(self.environ("user"))[3],
                     os.stat(folder).st_uid,
                     os.stat(folder).st_gid,
                 )
@@ -253,21 +273,23 @@ class Govel:
         """
         self.check_user_pak()
         self.create_version_folders()
-        self.check_config_file("versions", self.arguments["NAME"], os.path.join(self.datas[1], self.arguments["NAME"]))
+        self.check_config_file(
+            "versions", self.arguments["NAME"], os.path.join(self.environ("home"), self.arguments["NAME"])
+        )
 
     def check_config_file(self, section=False, key=False, value=False):
         """
         Get config file values
         """
         try:
-            self.config = config.Config(self.datas[3])
+            self.config = config.Config(self.environ("conf"))
         except:
             self.log.warn("Error while opening config file")
 
         if self.arguments["--path"]:
             self.config.set("govel", "path", self.arguments["PATH"])
         else:
-            self.config.set("govel", "path", self.datas[1])
+            self.config.set("govel", "path", self.environ("home"))
 
         if key:
             self.config.set(section, key, value)
@@ -340,8 +362,8 @@ class Govel:
         """
         Copy the temporary logfile in its final destination
         """
-        if os.path.exists(self.datas[2]):
-            govel = open(self.datas[2], "a+")
+        if os.path.exists(self.environ("log")):
+            govel = open(self.environ("log"), "a+")
             tmp = open(self.temporyFile, "r")
             govel.write(tmp.read())
             govel.seek(0)
@@ -349,12 +371,12 @@ class Govel:
             govel.close()
             tmp.close()
         else:
-            shutil.copy(self.temporyFile, self.datas[2])
+            shutil.copy(self.temporyFile, self.environ("log"))
             if self.arguments["--verbose"]:
-                self.log = renablou.Renablou(self.datas[2], "debug")
+                self.log = renablou.Renablou(self.environ("log"), "debug")
             else:
-                self.log = renablou.Renablou(self.datas[2], "info")
-            self.log.debug("Tempory File :" + self.datas[2])
+                self.log = renablou.Renablou(self.environ("log"), "info")
+            self.log.debug("Tempory File :" + self.environ("log"))
 
     def create_version_folders(self):
         """
@@ -366,7 +388,7 @@ class Govel:
             self.name = self.arguments["NAME"]
         self.log.debug("name is " + self.name)
 
-        dirname = os.path.join(self.datas[1], self.name)
+        dirname = os.path.join(self.environ("user"), self.name)
         if not os.path.exists(dirname):
             folders = [
                 dirname,
