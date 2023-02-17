@@ -3,8 +3,9 @@
 Forge of Erminig
 
 Usage:
-  govel init (--dev | --local | --global | --user) [-v] [--path PATH]
+  govel init (--dev | --global | --local | --user) [-v] [--path PATH]
   govel new (--name NAME) [-v]
+  govel add [ --dev | --global | --local | --user] PACKAGE [CATEGORY] [-v]
   govel --version
 
 Options:
@@ -39,6 +40,7 @@ from docopt import docopt
 from .lib import renablou
 from .lib import users
 from .lib import config
+from .lib import rekipe
 
 
 class Govel:
@@ -187,7 +189,25 @@ class Govel:
         else:
             return self.env[key]
 
-    def init_environment(self, env, debug=None):
+    def init_environment(self):
+        """
+        Check if script is launched with good user and
+        get configuration
+        """
+        if self.arguments["--dev"]:
+            self.check_user(self.Dev[0])
+            self.populate_environment(self.Dev, "Initialize dev govel")
+        elif self.arguments["--global"]:
+            self.check_user(self.Global[0])
+            self.populate_environment(self.Global, "Initialize global govel")
+        elif self.arguments["--local"]:
+            self.check_user(self.Local[0])
+            self.populate_environment(self.Local, "Initialize local govel")
+        elif self.arguments["--user"]:
+            self.check_user(self.User[0])
+            self.populate_environment(self.User, "Initialize user govel")
+
+    def populate_environment(self, env, debug=None):
         """
         get correct configuration values
         """
@@ -202,29 +222,25 @@ class Govel:
         """
         Select good datas and parameters to work with
         """
-        self.log.debug(self.arguments)
         if self.arguments["init"]:
-            if self.arguments["--dev"]:
-                self.check_user(self.Dev[0])
-                self.init_environment(self.Dev, "Initialize dev govel")
-            elif self.arguments["--global"]:
-                self.check_user(self.Global[0])
-                self.init_environment(self.Global, "Initialize global govel")
-            elif self.arguments["--local"]:
-                self.check_user(self.Local[0])
-                self.init_environment(self.Local, "Initialize local govel")
-            elif self.arguments["--user"]:
-                self.check_user(self.User[0])
-                self.init_environment(self.User, "Initialize user govel")
+            self.init_environment()
             if self.arguments["--path"]:
                 self.environ("home", self.arguments["PATH"])
             self.log.debug(self.env)
             self.initialize()
         elif self.arguments["new"]:
             self.check_user(self.Dev[0])
-            self.init_environment(self.Dev)
+            self.populate_environment(self.Dev)
             self.config = config.Config(self.environ("conf"))
             self.new_version()
+        elif self.arguments["add"]:
+            print(self.arguments)
+            if self.arguments["CATEGORY"] == "toolchain":
+                self.arguments["--dev"] = True
+            elif os.getcwd().startswith("/home/pak"):
+                self.arguments["--dev"] = True
+            self.init_environment()
+            rekipe.Rekipe(self.arguments, self.env)
 
     def initialize(self):
         """

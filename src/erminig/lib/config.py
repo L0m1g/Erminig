@@ -25,7 +25,7 @@ class Config:
         self.config = configparser.ConfigParser()
         self.config.read(self.path)
 
-    def get(self, section, key):
+    def get(self, section, key=None):
         """
         Return a configuration value
 
@@ -36,7 +36,11 @@ class Config:
         key : str
             Key to which to retrieve a value
         """
-        return self.config[section][key]
+        if key is None:
+            for key, value in self.config.items(section):
+                return key, value
+        else:
+            return self.config[section][key]
 
     def set(self, section, key, value) -> None:
         """
