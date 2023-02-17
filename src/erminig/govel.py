@@ -62,6 +62,15 @@ class Govel:
 
     Methods
     -------
+    def check_user(self, user):
+        Check if script is launch with a specific user
+
+    def environ(self, user, value=None):
+        Getter ant Setter for class environment values
+
+     def init_environment(self, env, debug):
+        get correct configuration values
+
     def parse_arguments(self):
         Select good datas and parameters to work with
 
@@ -76,9 +85,22 @@ class Govel:
     def init_folders(self):
         Create folders and check permissions
 
+    def create_pak_folders(self, folders):
+        Create folders and give them permissions for pak user
+
+    def new version(self):
+        Dispatch all the tasks to create a new version
+        A new version can only be created with pak in its home
+
+     def check_config_file(self, section=False, key=False, value=False):
+        Get config file values
+
     def check_perms_folder(self, path, uid, gid, r_uid, r_gid):
         Give new permissions if necessary
         A folder created by root can be finally be owned by the pak user
+
+    def check_user_pak(self):
+        Check if pak user is set on the system
 
     def create_pak_user(self):
         Create the pak user with a basic password
