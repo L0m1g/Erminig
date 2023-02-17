@@ -6,6 +6,7 @@ Usage:
   govel init (--dev | --global | --local | --user) [-v] [--path PATH]
   govel new (--name NAME) [-v]
   govel add [ --dev | --global | --local | --user] PACKAGE [CATEGORY] [-v]
+  govel edit [ --dev | --global | --local | --user] PACKAGE [CATEGORY] [-v]
   govel --version
 
 Options:
@@ -233,8 +234,7 @@ class Govel:
             self.populate_environment(self.Dev)
             self.config = config.Config(self.environ("conf"))
             self.new_version()
-        elif self.arguments["add"]:
-            print(self.arguments)
+        elif self.arguments["add"] or self.arguments["edit"]:
             if self.arguments["CATEGORY"] == "toolchain":
                 self.arguments["--dev"] = True
             elif os.getcwd().startswith("/home/pak"):

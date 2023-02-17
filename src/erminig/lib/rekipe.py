@@ -1,3 +1,4 @@
+import errno
 import os
 import subprocess
 
@@ -12,26 +13,31 @@ class Rekipe:
     env = {}
 
     def __init__(self, arguments, env):
-        print(env)
         print(arguments)
         self.env = env
         self.config = config.Config(self.env["conf"])
-        version = self.config.get("versions")[0]
-        self.add(version, arguments["PACKAGE"], arguments["CATEGORY"])
+        self.rekipe = os.path.join(
+            self.env["home"], self.config.get("versions")[0], arguments["CATEGORY"], arguments["PACKAGE"], "Rekipe"
+        )
+        if arguments["add"]:
+            self.add()
+        elif arguments["edit"]:
+            self.edit()
 
-    def add(self, version, package, category):
+    def add(self):
         try:
-            os.makedirs(os.path.join(self.env["home"], version, category, package))
+            os.makedirs(os.path.dirname(self.rekipe))
         except:
             print("Existe déjà")
         finally:
-            f = open(os.path.join(self.env["home"], version, category, package, "Rekipe"), "x")
-            f.write(
-                "# Maintainer: Lomig <guillaume.lame@protonmail.com>\n\
+            try:
+                f = open(self.rekipe, "x")
+                f.write(
+                    "# Maintainer: Lomig <guillaume.lame@protonmail.com>\n\
 \n\
 name="
-                + package
-                + "\n\
+                    + package
+                    + "\n\
 description=\n\
 \n\
 version=\n\
@@ -47,10 +53,18 @@ prepare(){\n\
 build(){\n\
 \n\
 }\n\
+\n\
 package(){\n\
 \n\
 }\n\
 "
-            )
-            f.close()
-        subprocess.run([os.environ.get("EDITOR"), os.path.join(self.env["home"], version, category, package, "Rekipe")])
+                )
+                f.close()
+            except OSError as e:
+                if e.errno == errno.EEXIST:
+                    print("Ça existe déjà Patate")
+                    exit(1)
+            self.edit()
+
+    def edit(self):
+        subprocess.run([os.environ.get("EDITOR"), self.rekipe])
