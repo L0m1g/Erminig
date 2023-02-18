@@ -7,13 +7,28 @@ from . import config
 
 class Rekipe:
     """
-    class to interact with rekipe files
+    class to interact with rekipe files which contain build instruction for packages
+
+    Attributes
+    ----------
+    arguments : list
+        list that contain arguments from govel
+    env :
+        environment variable from govel
+
+    Methods
+    -------
+    def add(self)
+        add a rekipe file in a category
+
+    def edit(self)
+        edit the Rekipe file with $EDITOR
     """
 
     env = {}
 
     def __init__(self, arguments, env):
-        print(arguments)
+        self.arguments = arguments
         self.env = env
         self.config = config.Config(self.env["conf"])
         self.rekipe = os.path.join(
@@ -25,6 +40,9 @@ class Rekipe:
             self.edit()
 
     def add(self):
+        """
+        Add a rekipe file in a category
+        """
         try:
             os.makedirs(os.path.dirname(self.rekipe))
         except:
@@ -36,12 +54,16 @@ class Rekipe:
                     "# Maintainer: Lomig <guillaume.lame@protonmail.com>\n\
 \n\
 name="
-                    + package
+                    + self.arguments["PACKAGE"]
                     + "\n\
 description=\n\
 \n\
 version=\n\
 revision=1\n\
+\n\
+depends=\n\
+makedepends=\n\
+optdepends=\n\
 \n\
 url=\n\
 dl=\n\
@@ -67,4 +89,7 @@ package(){\n\
             self.edit()
 
     def edit(self):
+        """
+        Edit a rekipe file with $EDITOR
+        """
         subprocess.run([os.environ.get("EDITOR"), self.rekipe])
