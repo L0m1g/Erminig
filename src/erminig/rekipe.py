@@ -45,6 +45,8 @@ class Rekipe:
             self.edit()
         elif arguments["info"]:
             self.info()
+        elif arguments["fix"]:
+            self.fix()
 
     def add(self):
         """
@@ -112,6 +114,29 @@ package(){\n\
         print("Revision    : " + self.get("revision"))
         print("Download    : " + self.get("dl"))
         print("Depends     : " + self.get("depends"))
+
+    def fix(self):
+        """
+        Edit a rekipe file by increment revision number
+        """
+        f = open(self.rekipe, "r")
+        data = f.read()
+        f.close()
+        f = open(self.rekipe, "r")
+        lines = f.readlines()
+        for line in lines:
+            if line.endswith("\n"):
+                line = line[:-1]
+            array = line.split("=")
+            if array[0] == "revision":
+                old = "revision=" + array[1]
+                new = "revision=" + str(int(array[1]) + 1)
+                data = data.replace(old, new)
+        f.close()
+        f = open(self.rekipe, "w")
+        f.write(data)
+        f.close()
+        self.edit()
 
     def get(self, key):
         """
