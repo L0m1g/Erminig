@@ -10,6 +10,7 @@ Usage:
   govel info [ --dev | --global | --local | --user] PACKAGE [CATEGORY] [-v]
   govel fix [ --dev | --global | --local | --user] PACKAGE [CATEGORY] [-v]
   govel update [ --dev | --global | --local | --user] PACKAGE VERSION [CATEGORY] [-v]
+  govel delete [ --dev | --global | --local || --user] PACKAGE [CATEGORY] [-v]
   govel --version
 
 Options:
@@ -22,8 +23,6 @@ Options:
 TODO : add govel delete
 TODO : add govel list
 TODO : add govel toolchain
-TODO : add govel update
-TODO : add govel fix
 TODO : add govel archive
 TODO : add govel rename
 """
@@ -240,6 +239,7 @@ class Govel:
             or self.arguments["info"]
             or self.arguments["fix"]
             or self.arguments["update"]
+            or self.arguments["delete"]
         ):
             if self.arguments["CATEGORY"] == "toolchain":
                 self.arguments["--dev"] = True

@@ -49,6 +49,8 @@ class Rekipe:
             self.fix()
         elif arguments["update"]:
             self.update()
+        elif arguments["delete"]:
+            self.delete()
 
     def add(self):
         """
@@ -174,6 +176,17 @@ package(){\n\
         f.write(data)
         f.close()
         self.edit()
+
+    def delete(self):
+        """
+        Delete package definition files
+        """
+        folder = os.path.dirname(self.rekipe)
+        for file in os.listdir(folder):
+            print(folder)
+            print(file)
+            os.remove(os.path.join(folder, file))
+        os.rmdir(folder)
 
     def get(self, key):
         """
