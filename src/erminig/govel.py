@@ -7,6 +7,7 @@ Usage:
   govel new (--name NAME) [-v]
   govel add [ --dev | --global | --local | --user] PACKAGE [CATEGORY] [-v]
   govel edit [ --dev | --global | --local | --user] PACKAGE [CATEGORY] [-v]
+  govel info [ --dev | --global | --local | --user] PACKAGE [CATEGORY] [-v]
   govel --version
 
 Options:
@@ -16,10 +17,8 @@ Options:
 """
 
 """
-TODO : add govel add
 TODO : add govel delete
 TODO : add govel list
-TODO : add govel info
 TODO : add govel toolchain
 TODO : add govel update
 TODO : add govel fix
@@ -39,9 +38,8 @@ import tempfile
 from docopt import docopt
 
 from .lib import renablou
-from .lib import users
 from .lib import config
-from .lib import rekipe
+from . import rekipe
 
 
 class Govel:
@@ -234,7 +232,7 @@ class Govel:
             self.populate_environment(self.Dev)
             self.config = config.Config(self.environ("conf"))
             self.new_version()
-        elif self.arguments["add"] or self.arguments["edit"]:
+        elif self.arguments["add"] or self.arguments["edit"] or self.arguments["info"]:
             if self.arguments["CATEGORY"] == "toolchain":
                 self.arguments["--dev"] = True
             elif os.getcwd().startswith("/home/pak"):
