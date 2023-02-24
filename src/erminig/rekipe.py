@@ -75,6 +75,7 @@ makedepends=\n\
 optdepends=\n\
 \n\
 url=\n\
+basedl=\n\
 dl=\n\
 \n\
 prepare(){\n\
