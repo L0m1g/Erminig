@@ -1,6 +1,8 @@
 import errno
+import hashlib
 import os
 import re
+import requests
 import subprocess
 
 from .lib import config
@@ -51,6 +53,8 @@ class Rekipe:
             self.update()
         elif arguments["delete"]:
             self.delete()
+        elif arguments["check"]:
+            self.check()
 
     def add(self):
         """
@@ -81,6 +85,7 @@ optdepends=\n\
 url=\n\
 basedl=\n\
 dl=\n\
+dlcheck=none\n\
 \n\
 prepare(){\n\
 \n\
@@ -188,6 +193,32 @@ package(){\n\
             os.remove(os.path.join(folder, file))
         os.rmdir(folder)
 
+    def check(self):
+        """
+        Check if new version potentialy exists
+        """
+        f = open(self.rekipe, "r")
+        data = f.read()
+        f.close()
+        f = open(self.rekipe, "r")
+        lines = f.readlines()
+        for line in lines:
+            array = line.split("=")
+            if array[0] == "dlcheck":
+                check_old = array[1]
+                old = "dlcheck=" + check_old
+
+        f = requests.get(str(self.get("basedl")))
+        html = f.text.encode("utf-8")
+        checksum = hashlib.sha3_512(html).hexdigest()
+        new = "dlcheck=" + checksum + "\n"
+        if old != new:
+            data = data.replace(old, new)
+            f.close()
+            f = open(self.rekipe, "w")
+            f.write(data)
+            f.close()
+
     def get(self, key):
         """
         Get value in Rekfile
@@ -230,5 +261,4 @@ package(){\n\
 
                     value = value.strip('"')
                     value = value.strip("'")
-                    value = value.replace("//", "/")
                     return value
